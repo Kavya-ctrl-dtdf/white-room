@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { Icon } from "@/components/Icons";
 import { EmptyState, PageHeader, PlanThumb, StatusPill } from "@/components/ui";
-import { addStay, formatDate, formatINR, layoutLabel, stayLabel } from "@/lib/format";
+import { addStay, formatDate, formatINR, layoutLabel, nowISO, stayLabel } from "@/lib/format";
 import { useStore } from "@/lib/store";
 import type { Booking, Listing } from "@/lib/types";
 
@@ -68,7 +68,7 @@ function BookingCard({ booking: b, listing: l }: { booking: Booking; listing: Li
     e.preventDefault();
     setTried(true);
     if (tooShort) return;
-    updateBooking(b.id, { status: "issue", issue: { note: note.trim(), at: new Date().toISOString() } });
+    updateBooking(b.id, { status: "issue", issue: { note: note.trim(), at: nowISO() } });
     setReporting(false);
     toast("Problem reported. We will call you within 2 hours");
   }

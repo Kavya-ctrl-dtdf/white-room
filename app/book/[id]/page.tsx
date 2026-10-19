@@ -5,7 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { Icon } from "@/components/Icons";
 import { EmptyState, Field, PlanThumb, PriceBreakdown } from "@/components/ui";
-import { addDays, addStay, dayOfMonth, formatDate, formatINR, layoutLabel, ordinal, stayLabel, todayISO } from "@/lib/format";
+import { addDays, addStay, dayOfMonth, formatDate, formatINR, layoutLabel, nowISO, ordinal, stayLabel, todayISO } from "@/lib/format";
 import { quote } from "@/lib/pricing";
 import { parseMonths } from "@/lib/search";
 import { useStore } from "@/lib/store";
@@ -99,7 +99,7 @@ function Checkout() {
       paidNow: q.monthly,
       method,
       status: "requested",
-      createdAt: new Date().toISOString(),
+      createdAt: nowISO(),
     };
     setPaying(true);
     setTimeout(() => {

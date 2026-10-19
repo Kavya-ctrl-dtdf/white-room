@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Icon } from "@/components/Icons";
 import { EmptyState, ListingStatusPill, PageHeader, StatusPill } from "@/components/ui";
 import { CHECKLIST, CHECK_COUNT, hostById } from "@/lib/data";
-import { addStay, formatDate, formatINR, layoutLabel, todayISO } from "@/lib/format";
+import { addStay, formatDate, formatINR, layoutLabel, nowISO, todayISO } from "@/lib/format";
 import { useStore } from "@/lib/store";
 import type { Listing } from "@/lib/types";
 
@@ -193,7 +193,7 @@ function Problems() {
       {problems.map((b) => {
         const l = listings.find((x) => x.id === b.listingId);
         const resolve = (resolution: string) => {
-          updateBooking(b.id, { status: "resolved", issue: { note: b.issue?.note ?? "", at: b.issue?.at ?? new Date().toISOString(), resolution } });
+          updateBooking(b.id, { status: "resolved", issue: { note: b.issue?.note ?? "", at: b.issue?.at ?? nowISO(), resolution } });
           toast(`${b.id} resolved`);
         };
         return (

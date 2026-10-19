@@ -14,6 +14,12 @@ export function todayISO(): string {
   return toISO(new Date());
 }
 
+/** Local date and time, so Indian evenings and early mornings are not shifted to the previous UTC day. */
+export function nowISO(): string {
+  const d = new Date();
+  return `${toISO(d)}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
 function parse(iso: string): Date {
   const [y, m, d] = iso.slice(0, 10).split("-").map(Number);
   return new Date(y, (m || 1) - 1, d || 1);
