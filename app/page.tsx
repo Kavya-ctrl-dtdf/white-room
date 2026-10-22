@@ -157,28 +157,14 @@ export default function HomePage() {
       </section>
 
       <section className="mx-auto max-w-page px-5 py-12">
-        <h2 className="text-3xl md:text-4xl">Built around why you are here</h2>
-        <div className="mt-8 divide-y divide-line border-y border-line">
-          {(Object.keys(SEGMENTS) as Segment[]).map((s) => {
-            const Ico = SEGMENT_ICON[s];
-            const n = verified.filter((l) => l.segments.includes(s)).length;
-            return (
-              <Link
-                key={s}
-                href={`/stays?for=${s}`}
-                className="group flex flex-col gap-3 py-6 transition-colors hover:bg-wall md:flex-row md:items-center md:gap-8 md:px-4"
-              >
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-wall text-ink group-hover:bg-white">
-                  <Ico size={24} />
-                </span>
-                <span className="md:w-72">
-                  <span className="block font-display text-xl font-semibold tracking-tight">{SEGMENTS[s].label}</span>
-                </span>
-                <span className="flex-1 text-graphite">{SEGMENTS[s].blurb}</span>
-                <span className="text-sm font-semibold text-seal tnum">{n} verified homes</span>
-              </Link>
-            );
-          })}
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <h2 className="text-3xl md:text-4xl">Recently verified</h2>
+          <Link href="/stays?sort=recent" className="text-sm font-semibold text-seal hover:underline">See all homes</Link>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {recent.map((l) => (
+            <ListingCard key={l.id} listing={l} />
+          ))}
         </div>
       </section>
 
@@ -202,14 +188,28 @@ export default function HomePage() {
       </section>
 
       <section className="mx-auto max-w-page px-5 py-8">
-        <div className="mb-8 flex items-end justify-between gap-4">
-          <h2 className="text-3xl md:text-4xl">Recently verified</h2>
-          <Link href="/stays?sort=recent" className="text-sm font-semibold text-seal hover:underline">See all homes</Link>
-        </div>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {recent.map((l) => (
-            <ListingCard key={l.id} listing={l} />
-          ))}
+        <h2 className="text-3xl md:text-4xl">Built around why you are here</h2>
+        <div className="mt-8 divide-y divide-line border-y border-line">
+          {(Object.keys(SEGMENTS) as Segment[]).map((s) => {
+            const Ico = SEGMENT_ICON[s];
+            const n = verified.filter((l) => l.segments.includes(s)).length;
+            return (
+              <Link
+                key={s}
+                href={`/stays?for=${s}`}
+                className="group flex flex-col gap-3 py-6 transition-colors hover:bg-wall md:flex-row md:items-center md:gap-8 md:px-4"
+              >
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-wall text-ink group-hover:bg-white">
+                  <Ico size={24} />
+                </span>
+                <span className="md:w-72">
+                  <span className="block font-display text-xl font-semibold tracking-tight">{SEGMENTS[s].label}</span>
+                </span>
+                <span className="flex-1 text-graphite">{SEGMENTS[s].blurb}</span>
+                <span className="text-sm font-semibold text-seal tnum">{n} verified homes</span>
+              </Link>
+            );
+          })}
         </div>
       </section>
 

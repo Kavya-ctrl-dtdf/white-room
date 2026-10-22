@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/Icons";
-import { EmptyState, PlanThumb, Rating, SegmentTags, VerifiedPill } from "@/components/ui";
+import { EmptyState, HomeVisual, Rating, SegmentTags, VerifiedPill } from "@/components/ui";
 import { AREAS, SEGMENTS, relevantNearby } from "@/lib/data";
 import { STAY_OPTIONS, addDays, formatDate, stayLabel, stayOptionLabel, formatINR, layoutLabel, todayISO } from "@/lib/format";
 import { quote } from "@/lib/pricing";
@@ -288,7 +288,7 @@ function MapRow({
       onFocus={() => onActive(l.id)}
       className={`panel flex gap-3 p-3 transition-colors ${active ? "border-seal bg-sealsoft/40 ring-1 ring-seal" : "hover:border-ink"}`}
     >
-      <PlanThumb listing={l} className="h-20 w-24 shrink-0 !p-1.5" />
+      <HomeVisual listing={l} inset="sm" className="h-20 w-24 shrink-0 !p-1.5" />
       <div className="min-w-0 flex-1">
         <p className="text-xs text-graphite">{layoutLabel[l.layout]}, {l.area}</p>
         <Link href={`/stays/${l.id}${carry}`} className="block truncate font-display text-base font-semibold leading-snug hover:underline">
@@ -323,7 +323,7 @@ function ResultRow({
       href={`/stays/${l.id}${carry}`}
       className="panel grid gap-4 p-4 transition-colors hover:border-ink sm:grid-cols-[200px_1fr] md:grid-cols-[200px_1fr_auto]"
     >
-      <PlanThumb listing={l} className="aspect-[4/3] sm:aspect-auto sm:h-full sm:min-h-[150px]" />
+      <HomeVisual listing={l} tag className="aspect-[4/3] sm:aspect-auto sm:h-full sm:min-h-[150px]" />
       <div className="min-w-0">
         <VerifiedPill />
         <p className="mt-2 text-sm text-graphite tnum">

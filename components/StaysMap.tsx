@@ -5,7 +5,7 @@ import type { Map as LeafletMap, Marker, TileLayer } from "leaflet";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "./Icons";
-import { PlanThumb, VerifiedPill } from "./ui";
+import { HomeVisual, VerifiedPill } from "./ui";
 import { BENGALURU, coordsFor } from "@/lib/geo";
 import { formatINR, layoutLabel } from "@/lib/format";
 import { quote } from "@/lib/pricing";
@@ -234,7 +234,7 @@ export default function StaysMap({ results, months, activeId, onActive, carry }:
               <Icon.Close size={16} />
             </button>
             <Link href={`/stays/${active.id}${carry}`} className="flex gap-4 p-4 pl-5">
-              <PlanThumb listing={active} className="h-[104px] w-[116px] shrink-0 !rounded-2xl !p-2" />
+              <HomeVisual listing={active} inset="sm" className="h-[104px] w-[116px] shrink-0 !rounded-2xl !p-2" />
               <span className="min-w-0 flex-1 pr-5">
                 <VerifiedPill />
                 <span className="mt-1.5 block truncate font-display text-[17px] font-semibold leading-snug">{active.title}</span>

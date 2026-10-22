@@ -77,6 +77,42 @@ export function PlanThumb({ listing, className = "" }: { listing: Listing; class
   );
 }
 
+/** A home's photo with its floor plan inset, or just the floor plan when it has no photo yet. */
+export function HomeVisual({
+  listing,
+  className = "",
+  tag = false,
+  inset = "md",
+}: {
+  listing: Listing;
+  className?: string;
+  tag?: boolean;
+  inset?: "sm" | "md";
+}) {
+  const photo = HOME_PHOTOS[listing.id];
+  if (!photo) return <PlanThumb listing={listing} className={className} />;
+  const insetCls = inset === "sm" ? "bottom-1.5 left-1.5 h-9 w-12 rounded-md p-0.5" : "bottom-2.5 left-2.5 h-[60px] w-20 rounded-lg p-1";
+  return (
+    <div className={`relative overflow-hidden rounded-xl bg-wall ${className}`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={photo}
+        alt={`Sample interior photo for ${listing.title}`}
+        loading="lazy"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      {tag && (
+        <span className="absolute right-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-medium text-graphite backdrop-blur">
+          Sample photo
+        </span>
+      )}
+      <div className={`drafting absolute border border-line shadow-md ${insetCls}`}>
+        <FloorPlan layout={listing.layout} variant={listing.variant} labels={false} className="h-full w-full" />
+      </div>
+    </div>
+  );
+}
+
 export function PriceBreakdown({ rent, months }: { rent: number; months: number }) {
   const q = quote(rent, months);
   return (
