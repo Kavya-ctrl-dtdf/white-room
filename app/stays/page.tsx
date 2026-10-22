@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
@@ -20,6 +21,11 @@ import {
 } from "@/lib/search";
 import { useStore } from "@/lib/store";
 import type { Layout, Listing, Segment } from "@/lib/types";
+
+const StaysMap = dynamic(() => import("@/components/StaysMap"), {
+  ssr: false,
+  loading: () => <div className="h-full min-h-[320px] animate-pulse rounded-2xl bg-wall" />,
+});
 
 const LAYOUTS: Layout[] = ["studio", "1bhk", "2bhk", "3bhk"];
 
@@ -48,6 +54,8 @@ function Stays() {
 
   const [budget, setBudget] = useState(urlBudget);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const view = sp.get("view") === "map" ? "map" : "list";
   useEffect(() => setBudget(urlBudget), [urlBudget]);
 
   function update(patch: Record<string, string | null>) {
@@ -192,7 +200,20 @@ function Stays() {
                 From {formatDate(move)}, for {stayLabel(months)}. Prices include GST and all fees.
               </p>
             </div>
-            <div>
+            <div className="flex items-center gap-2">
+              <div className="flex rounded-full border border-line p-0.5" role="group" aria-label="Results view">
+                {(["list", "map"] as const).map((v) => (
+                  <button
+                    key={v}
+                    type="button"
+                    aria-pressed={view === v}
+                    onClick={() => update({ view: v === "map" ? "map" : null })}
+                    className={`rounded-full px-3.5 py-1.5 text-sm font-medium ${view === v ? "bg-ink text-white" : "text-ink"}`}
+                  >
+                    {v === "list" ? "List" : "Map"}
+                  </button>
+                ))}
+              </div>
               <label htmlFor="sort" className="sr-only">Sort by</label>
               <select id="sort" className="field w-auto" value={sort} onChange={(e) => update({ sort: e.target.value })}>
                 {SORTS.map((s) => (
@@ -202,18 +223,82 @@ function Stays() {
             </div>
           </div>
 
-          <div className="mt-6 space-y-4">
-            {results.length === 0 ? (
-              <EmptyState title="No homes match yet" text="Try a different area, a longer stay or a higher budget.">
-                <button type="button" className="btn btn-primary" onClick={() => router.replace("/stays")}>
-                  Clear filters
-                </button>
-              </EmptyState>
-            ) : (
-              results.map((l) => <ResultRow key={l.id} listing={l} segment={segment} months={months} carry={carry} />)
-            )}
-          </div>
+          {view === "map" ? (
+            <div className="mt-6 grid gap-4 xl:grid-cols-[340px_1fr]">
+              <div className="order-2 space-y-3 xl:order-1 xl:max-h-[70vh] xl:overflow-y-auto xl:pr-1">
+                {results.length === 0 ? (
+                  <EmptyState title="No homes match yet" text="Try a different area, a longer stay or a higher budget.">
+                    <button type="button" className="btn btn-primary" onClick={() => router.replace("/stays?view=map")}>
+                      Clear filters
+                    </button>
+                  </EmptyState>
+                ) : (
+                  results.map((l) => (
+                    <MapRow
+                      key={l.id}
+                      listing={l}
+                      months={months}
+                      carry={carry}
+                      active={l.id === activeId}
+                      onActive={setActiveId}
+                    />
+                  ))
+                )}
+              </div>
+              <div className="order-1 h-[60vh] xl:order-2 xl:h-[70vh]">
+                <StaysMap results={results} months={months} activeId={activeId} onActive={setActiveId} carry={carry} />
+              </div>
+            </div>
+          ) : (
+            <div className="mt-6 space-y-4">
+              {results.length === 0 ? (
+                <EmptyState title="No homes match yet" text="Try a different area, a longer stay or a higher budget.">
+                  <button type="button" className="btn btn-primary" onClick={() => router.replace("/stays")}>
+                    Clear filters
+                  </button>
+                </EmptyState>
+              ) : (
+                results.map((l) => <ResultRow key={l.id} listing={l} segment={segment} months={months} carry={carry} />)
+              )}
+            </div>
+          )}
         </section>
+      </div>
+    </div>
+  );
+}
+
+function MapRow({
+  listing: l,
+  months,
+  carry,
+  active,
+  onActive,
+}: {
+  listing: Listing;
+  months: number;
+  carry: string;
+  active: boolean;
+  onActive: (id: string | null) => void;
+}) {
+  const q = quote(l.rent, months);
+  return (
+    <div
+      onMouseEnter={() => onActive(l.id)}
+      onFocus={() => onActive(l.id)}
+      className={`panel flex gap-3 p-3 transition-colors ${active ? "border-seal ring-1 ring-seal" : "hover:border-ink"}`}
+    >
+      <PlanThumb listing={l} className="h-20 w-24 shrink-0 !p-1.5" />
+      <div className="min-w-0 flex-1">
+        <p className="text-xs text-graphite">{layoutLabel[l.layout]}, {l.area}</p>
+        <Link href={`/stays/${l.id}${carry}`} className="block truncate font-display text-base font-semibold leading-snug hover:underline">
+          {l.title}
+        </Link>
+        <p className="mt-0.5 text-sm tnum">
+          <span className="font-semibold">{formatINR(q.perMonth)}</span>
+          <span className="text-graphite"> a month, all in</span>
+        </p>
+        <Rating rating={l.rating} stays={l.stays} />
       </div>
     </div>
   );
