@@ -72,6 +72,7 @@ export default function HomePage() {
 
   return (
     <>
+      <div className="overflow-x-clip">
       <section className="mx-auto grid max-w-page items-center gap-10 px-5 pb-16 pt-10 lg:grid-cols-[1.05fr_1fr] lg:pt-16">
         <div>
           <h1 className="text-[2.6rem] leading-[1.02] md:text-[4.1rem]">A furnished home for the months you need one.</h1>
@@ -136,6 +137,7 @@ export default function HomePage() {
           <Callout className="bottom-24 left-[-2rem]" text="Wi-Fi measured at 94 Mbps" />
         </div>
       </section>
+      </div>
 
       <section className="mx-auto max-w-page px-5 py-16">
         <h2 className="text-3xl md:text-4xl">How a stay works</h2>

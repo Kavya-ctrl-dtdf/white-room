@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Icon } from "./Icons";
 import FloorPlan from "./FloorPlan";
 import { SEGMENTS } from "@/lib/data";
+import { HOME_PHOTOS } from "@/lib/photos";
 import { formatDate, formatINR, layoutLabel, stayLabel } from "@/lib/format";
 import { quote } from "@/lib/pricing";
 import type { BookingStatus, Listing, Segment } from "@/lib/types";
@@ -108,12 +109,31 @@ function Row({ label, value, seal }: { label: string; value: string; seal?: bool
 
 export function ListingCard({ listing, query = "" }: { listing: Listing; query?: string }) {
   const q = quote(listing.rent, 1);
+  const photo = HOME_PHOTOS[listing.id];
   return (
     <Link
       href={`/stays/${listing.id}${query}`}
       className="panel group block overflow-hidden transition-colors hover:border-ink"
     >
-      <PlanThumb listing={listing} className="aspect-[4/3] rounded-none" />
+      {photo ? (
+        <div className="relative aspect-[4/3] overflow-hidden bg-wall">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={photo}
+            alt={`Sample interior photo for ${listing.title}`}
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+          />
+          <span className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-medium text-graphite backdrop-blur">
+            Sample photo
+          </span>
+          <div className="drafting absolute bottom-3 left-3 h-[72px] w-24 rounded-xl border border-line p-1.5 shadow-md">
+            <FloorPlan layout={listing.layout} variant={listing.variant} labels={false} className="h-full w-full" />
+          </div>
+        </div>
+      ) : (
+        <PlanThumb listing={listing} className="aspect-[4/3] rounded-none" />
+      )}
       <div className="p-4">
         {listing.verifiedOn ? <VerifiedPill date={listing.verifiedOn} /> : <ListingStatusPill status={listing.status} />}
         <h3 className="mt-3 text-lg leading-snug">{listing.title}</h3>
