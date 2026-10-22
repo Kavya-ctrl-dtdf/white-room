@@ -5,7 +5,7 @@ import type { Map as LeafletMap, Marker, TileLayer } from "leaflet";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "./Icons";
-import { PlanThumb } from "./ui";
+import { PlanThumb, VerifiedPill } from "./ui";
 import { BENGALURU, coordsFor } from "@/lib/geo";
 import { formatINR, layoutLabel } from "@/lib/format";
 import { quote } from "@/lib/pricing";
@@ -47,6 +47,10 @@ export default function StaysMap({ results, months, activeId, onActive, carry }:
       lib.current = L;
       const m = L.map(host.current, { zoomControl: true }).setView(BENGALURU, 11);
       m.on("click", () => onActiveRef.current(null));
+      // Zoomed far out, pins shrink to dots so the city does not look crowded.
+      const syncZoom = () => host.current?.classList.toggle("wr-low", m.getZoom() < 12);
+      m.on("zoomend", syncZoom);
+      syncZoom();
       map.current = m;
       setReady(true);
     })();
@@ -78,6 +82,7 @@ export default function StaysMap({ results, months, activeId, onActive, carry }:
           });
     t.addTo(m);
     tiles.current = t;
+    host.current?.classList.toggle("wr-street", layer === "street");
   }, [ready, layer]);
 
   // Price pins follow the search results.
@@ -138,7 +143,7 @@ export default function StaysMap({ results, months, activeId, onActive, carry }:
   const active = results.find((r) => r.id === activeId);
 
   return (
-    <div className="relative h-full min-h-[320px] overflow-hidden rounded-2xl border border-line bg-wall">
+    <div className="relative h-full min-h-[320px] overflow-hidden rounded-[28px] border border-line bg-wall shadow-sm">
       <div ref={host} className="h-full w-full" aria-label="Map of verified homes" />
 
       <div className="absolute right-3 top-3 z-[500] flex flex-col items-end gap-2">
@@ -167,25 +172,37 @@ export default function StaysMap({ results, months, activeId, onActive, carry }:
       )}
 
       {active && (
-        <Link
-          href={`/stays/${active.id}${carry}`}
-          className="absolute bottom-3 left-3 right-3 z-[500] flex gap-3 rounded-2xl border border-line bg-white p-3 shadow-lg sm:right-auto sm:w-[340px]"
-        >
-          <PlanThumb listing={active} className="h-20 w-24 shrink-0 !p-1.5" />
-          <span className="min-w-0">
-            <span className="block text-xs text-graphite">
-              {layoutLabel[active.layout]}, {active.sqft} sq ft, {active.area}
-            </span>
-            <span className="block truncate font-display text-base font-semibold leading-snug">{active.title}</span>
-            <span className="mt-0.5 block text-sm tnum">
-              <span className="font-semibold">{formatINR(quote(active.rent, months).perMonth)}</span>
-              <span className="text-graphite"> a month, all in</span>
-            </span>
-            <span className="mt-0.5 flex items-center gap-1 text-xs text-graphite tnum">
-              <Icon.Wifi size={13} /> {active.wifiMbps} Mbps measured
-            </span>
-          </span>
-        </Link>
+        <div className="absolute bottom-4 left-4 right-4 z-[500] sm:right-auto sm:w-[380px]">
+          <div className="relative overflow-hidden rounded-3xl border border-line bg-white shadow-xl">
+            <button
+              type="button"
+              onClick={() => onActive(null)}
+              aria-label="Close"
+              className="absolute right-2.5 top-2.5 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-graphite shadow-sm hover:text-ink"
+            >
+              <Icon.Close size={16} />
+            </button>
+            <Link href={`/stays/${active.id}${carry}`} className="flex gap-4 p-4">
+              <PlanThumb listing={active} className="h-[104px] w-[116px] shrink-0 !rounded-2xl !p-2" />
+              <span className="min-w-0 flex-1 pr-5">
+                <VerifiedPill />
+                <span className="mt-1.5 block truncate font-display text-[17px] font-semibold leading-snug">{active.title}</span>
+                <span className="block text-xs text-graphite">
+                  {layoutLabel[active.layout]}, {active.sqft} sq ft, {active.area}
+                </span>
+                <span className="mt-2 flex items-baseline gap-1.5 tnum">
+                  <span className="font-display text-xl font-semibold tracking-tight">
+                    {formatINR(quote(active.rent, months).perMonth)}
+                  </span>
+                  <span className="text-xs text-graphite">a month, all in</span>
+                </span>
+                <span className="mt-1 flex items-center gap-1.5 text-xs text-graphite tnum">
+                  <Icon.Wifi size={13} /> {active.wifiMbps} Mbps measured
+                </span>
+              </span>
+            </Link>
+          </div>
+        </div>
       )}
     </div>
   );
