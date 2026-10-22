@@ -286,7 +286,7 @@ function MapRow({
     <div
       onMouseEnter={() => onActive(l.id)}
       onFocus={() => onActive(l.id)}
-      className={`panel flex gap-3 p-3 transition-colors ${active ? "border-seal ring-1 ring-seal" : "hover:border-ink"}`}
+      className={`panel flex gap-3 p-3 transition-colors ${active ? "border-seal bg-sealsoft/40 ring-1 ring-seal" : "hover:border-ink"}`}
     >
       <PlanThumb listing={l} className="h-20 w-24 shrink-0 !p-1.5" />
       <div className="min-w-0 flex-1">
