@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { autoReplyTemplate } from "@/lib/help/autoReply";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseConfigured } from "@/lib/supabase/config";
 
@@ -12,31 +13,27 @@ export async function sendMessage(formData: FormData) {
 
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
-  const phone = String(formData.get("phone") ?? "").trim() || null;
+  const phone = String(formData.get("phone") ?? "").trim();
   const topicRaw = String(formData.get("topic") ?? "stay");
   const topic = (TOPICS as readonly string[]).includes(topicRaw) ? topicRaw : "other";
-  const listing = String(formData.get("listing") ?? "").trim().slice(0, 40) || null;
+  const listing = String(formData.get("listing") ?? "").trim().slice(0, 40);
   const message = String(formData.get("message") ?? "").trim();
 
   if (!name || !email || message.length < 5) redirect("/contact?error=missing");
   if (!supabaseConfigured) redirect("/contact?error=send");
 
+  // One database call saves the query, makes the reference number and stores the automated reply.
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // No .select() after the insert: visitors may write messages but not read them back.
-  const { error } = await supabase.from("contact_messages").insert({
-    user_id: user?.id ?? null,
-    name,
-    email,
-    phone,
-    topic,
-    listing_id: listing,
-    message,
+  const { data: ref, error } = await supabase.rpc("submit_help_query", {
+    p_name: name,
+    p_email: email,
+    p_phone: phone,
+    p_topic: topic,
+    p_listing: listing,
+    p_message: message,
+    p_auto_reply: autoReplyTemplate(topic),
   });
 
-  if (error) redirect("/contact?error=send");
-  redirect("/contact?sent=1");
+  if (error || typeof ref !== "string") redirect("/contact?error=send");
+  redirect(`/contact?${new URLSearchParams({ sent: "1", ref, topic }).toString()}`);
 }

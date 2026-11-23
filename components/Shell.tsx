@@ -150,6 +150,7 @@ export function Footer({ account }: { account: AccountState }) {
     signedOut
       ? { href: "/login?next=/trips", label: "Sign in to see your stays" }
       : { href: "/trips", label: "My stays" },
+    ...(account.configured && !signedOut ? [{ href: "/my-queries", label: "My help queries" }] : []),
     { href: "/", label: "How a stay works" },
   ];
 

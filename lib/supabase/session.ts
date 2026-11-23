@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { safeNext, supabaseConfigured, type Role } from "./config";
 
 // Any signed-in user.
-const SIGNED_IN = ["/trips"];
+const SIGNED_IN = ["/trips", "/my-queries"];
 // Hosts and admins. This includes /host/new.
 const HOST_ONLY = ["/host"];
 const ADMIN_ONLY = ["/admin"];

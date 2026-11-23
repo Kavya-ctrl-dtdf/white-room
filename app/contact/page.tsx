@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getViewer } from "@/lib/auth/viewer";
+import { autoReplyTemplate, cleanReference, fillReference } from "@/lib/help/autoReply";
 import { sendMessage } from "./actions";
 
 export const metadata = { title: "Contact us: White Room" };
@@ -7,19 +8,39 @@ export const metadata = { title: "Contact us: White Room" };
 export default async function ContactPage({
   searchParams,
 }: {
-  searchParams: Promise<{ sent?: string; error?: string; topic?: string; listing?: string }>;
+  searchParams: Promise<{ sent?: string; ref?: string; error?: string; topic?: string; listing?: string }>;
 }) {
-  const { sent, error, topic = "stay", listing = "" } = await searchParams;
+  const { sent, ref: refParam, error, topic = "stay", listing = "" } = await searchParams;
   const { user, name } = await getViewer();
 
   if (sent) {
+    const ref = cleanReference(refParam);
     return (
-      <div className="mx-auto max-w-xl px-5 py-20">
-        <div className="drafting rounded-[28px] border border-line px-6 py-12 md:px-10">
+      <div className="mx-auto max-w-xl px-5 py-16 md:py-20">
+        <div className="drafting rounded-[28px] border border-line px-6 py-10 md:px-10">
           <h1 className="text-3xl md:text-4xl">Message sent</h1>
-          <p className="mt-3 text-graphite">We reply within one working day, by email or phone.</p>
-          <div className="mt-6">
-            <Link href="/stays" className="btn btn-primary">
+          {ref && (
+            <p className="mt-3 text-sm text-graphite">
+              Your reference number is <span className="font-semibold text-ink tnum">{ref}</span>. Keep it if you write to us again.
+            </p>
+          )}
+
+          <div className="mt-6 rounded-2xl border border-line bg-white p-5">
+            <p className="text-sm font-semibold text-seal">Automated reply</p>
+            <p className="mt-2 leading-relaxed">{fillReference(autoReplyTemplate(topic), ref ?? "")}</p>
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            {user ? (
+              <Link href="/my-queries" className="btn btn-primary">
+                View my help queries
+              </Link>
+            ) : (
+              <Link href="/login?next=/my-queries" className="btn btn-primary">
+                Sign in to track your queries
+              </Link>
+            )}
+            <Link href="/stays" className="btn btn-quiet">
               Find a stay
             </Link>
           </div>
@@ -32,7 +53,8 @@ export default async function ContactPage({
     <div className="mx-auto max-w-xl px-5 py-12 md:py-16">
       <h1 className="text-3xl md:text-4xl">Contact us</h1>
       <p className="mt-3 text-graphite">
-        Questions about a home, a booking or listing your property. We reply within one working day.
+        Questions about a home, a booking or listing your property. You get an automated reply with a reference number right
+        away, and a person replies within one working day.
       </p>
 
       {error === "missing" && (

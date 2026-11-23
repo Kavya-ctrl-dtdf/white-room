@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function Messages() {
   let messages: {
     id: string;
+    ref: string | null;
     name: string;
     email: string;
     phone: string | null;
@@ -22,7 +23,7 @@ export default async function Messages() {
     const supabase = await createClient();
     const { data } = await supabase
       .from("contact_messages")
-      .select("id, name, email, phone, topic, listing_id, message, status, created_at")
+      .select("id, ref, name, email, phone, topic, listing_id, message, status, created_at")
       .order("created_at", { ascending: false })
       .limit(100);
     messages = data ?? [];
@@ -46,6 +47,7 @@ export default async function Messages() {
       <ul className="space-y-4">
         {messages.map((m) => (
           <li key={m.id} className="panel p-5">
+            {m.ref && <p className="mb-1 text-sm font-semibold tnum">{m.ref}</p>}
             <p className="font-semibold">
               {m.name},{" "}
               <a href={`mailto:${m.email}`} className="text-seal hover:underline">
