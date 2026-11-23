@@ -1,7 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { autoReplyTemplate } from "@/lib/help/autoReply";
+import { autoReplyTemplate, fillReference } from "@/lib/help/autoReply";
+import { sendHelpEmails } from "@/lib/help/email";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseConfigured } from "@/lib/supabase/config";
 
@@ -22,9 +23,9 @@ export async function sendMessage(formData: FormData) {
   if (!name || !email || message.length < 5) redirect("/contact?error=missing");
   if (!supabaseConfigured) redirect("/contact?error=send");
 
-  // One database call saves the query, makes the reference number and stores the automated reply.
+  // 1. Save the query. One database call stores it, makes the reference number and the automated reply.
   const supabase = await createClient();
-  const { data: ref, error } = await supabase.rpc("submit_help_query", {
+  const { data: rpcRef, error } = await supabase.rpc("submit_help_query", {
     p_name: name,
     p_email: email,
     p_phone: phone,
@@ -34,13 +35,12 @@ export async function sendMessage(formData: FormData) {
     p_auto_reply: autoReplyTemplate(topic),
   });
 
-  if (!error && typeof ref === "string") {
-    redirect(`/contact?${new URLSearchParams({ sent: "1", ref, topic }).toString()}`);
-  }
+  let saved = !error && typeof rpcRef === "string";
+  const ref = saved ? (rpcRef as string) : null;
 
-  // The database function isn't installed yet: fall back to a plain save, without a reference number.
+  // If the database function isn't installed, fall back to a plain save without a reference number.
   const missingFunction = error?.code === "PGRST202" || /submit_help_query/.test(error?.message ?? "");
-  if (missingFunction) {
+  if (!saved && missingFunction) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -53,8 +53,26 @@ export async function sendMessage(formData: FormData) {
       listing_id: listing || null,
       message,
     });
-    if (!insertError) redirect(`/contact?${new URLSearchParams({ sent: "1", topic }).toString()}`);
+    saved = !insertError;
   }
 
-  redirect("/contact?error=send");
+  if (!saved) redirect("/contact?error=send");
+
+  // 2. Email the owner and send the automatic acknowledgement. Awaited so it finishes before the
+  //    server function stops; a failure here never loses the query, which is already saved.
+  const mail = await sendHelpEmails({
+    ref,
+    name,
+    email,
+    phone,
+    topic,
+    listing,
+    message,
+    autoReply: fillReference(autoReplyTemplate(topic), ref),
+  });
+
+  const params = new URLSearchParams({ sent: "1", topic });
+  if (ref) params.set("ref", ref);
+  if (mail.ack) params.set("mailed", "1");
+  redirect(`/contact?${params.toString()}`);
 }

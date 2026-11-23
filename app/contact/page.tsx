@@ -8,9 +8,9 @@ export const metadata = { title: "Contact us: White Room" };
 export default async function ContactPage({
   searchParams,
 }: {
-  searchParams: Promise<{ sent?: string; ref?: string; error?: string; topic?: string; listing?: string }>;
+  searchParams: Promise<{ sent?: string; ref?: string; mailed?: string; error?: string; topic?: string; listing?: string }>;
 }) {
-  const { sent, ref: refParam, error, topic = "stay", listing = "" } = await searchParams;
+  const { sent, ref: refParam, mailed, error, topic = "stay", listing = "" } = await searchParams;
   const { user, name } = await getViewer();
 
   if (sent) {
@@ -28,6 +28,7 @@ export default async function ContactPage({
           <div className="mt-6 rounded-2xl border border-line bg-white p-5">
             <p className="text-sm font-semibold text-seal">Automated reply</p>
             <p className="mt-2 leading-relaxed">{fillReference(autoReplyTemplate(topic), ref)}</p>
+            {mailed && <p className="mt-3 text-sm text-graphite">We have also emailed you a copy of this reply.</p>}
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
