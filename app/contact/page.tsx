@@ -1,0 +1,97 @@
+import Link from "next/link";
+import { getViewer } from "@/lib/auth/viewer";
+import { sendMessage } from "./actions";
+
+export const metadata = { title: "Contact us: White Room" };
+
+export default async function ContactPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sent?: string; error?: string; topic?: string; listing?: string }>;
+}) {
+  const { sent, error, topic = "stay", listing = "" } = await searchParams;
+  const { user, name } = await getViewer();
+
+  if (sent) {
+    return (
+      <div className="mx-auto max-w-xl px-5 py-20">
+        <div className="drafting rounded-[28px] border border-line px-6 py-12 md:px-10">
+          <h1 className="text-3xl md:text-4xl">Message sent</h1>
+          <p className="mt-3 text-graphite">We reply within one working day, by email or phone.</p>
+          <div className="mt-6">
+            <Link href="/stays" className="btn btn-primary">
+              Find a stay
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-xl px-5 py-12 md:py-16">
+      <h1 className="text-3xl md:text-4xl">Contact us</h1>
+      <p className="mt-3 text-graphite">
+        Questions about a home, a booking or listing your property. We reply within one working day.
+      </p>
+
+      {error === "missing" && (
+        <p role="alert" className="mt-6 rounded-xl bg-alertsoft p-4 text-sm font-medium text-alert">
+          Add your name, email and a message, then send again.
+        </p>
+      )}
+      {error === "send" && (
+        <p role="alert" className="mt-6 rounded-xl bg-alertsoft p-4 text-sm font-medium text-alert">
+          The message didn&apos;t send. Check your email address and try again.
+        </p>
+      )}
+
+      <form action={sendMessage} className="panel relative mt-6 space-y-4 p-5 md:p-6">
+        <div>
+          <label htmlFor="c-name" className="label">Your name</label>
+          <input id="c-name" name="name" autoComplete="name" required maxLength={120} defaultValue={name ?? ""} className="field" />
+        </div>
+        <div>
+          <label htmlFor="c-email" className="label">Email</label>
+          <input
+            id="c-email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            required
+            maxLength={200}
+            defaultValue={user?.email ?? ""}
+            className="field"
+          />
+        </div>
+        <div>
+          <label htmlFor="c-phone" className="label">Phone (optional)</label>
+          <input id="c-phone" name="phone" type="tel" autoComplete="tel" maxLength={20} placeholder="+91" className="field" />
+        </div>
+        <div>
+          <label htmlFor="c-topic" className="label">What is it about?</label>
+          <select id="c-topic" name="topic" defaultValue={topic} className="field">
+            <option value="stay">Finding a stay</option>
+            <option value="booking">A booking I&apos;ve made</option>
+            <option value="owner">Listing my property</option>
+            <option value="other">Something else</option>
+          </select>
+        </div>
+        {listing && <input type="hidden" name="listing" value={listing} />}
+        <div>
+          <label htmlFor="c-message" className="label">Message</label>
+          <textarea id="c-message" name="message" required minLength={5} maxLength={4000} rows={6} className="field" />
+        </div>
+        <div aria-hidden="true" style={{ position: "absolute", left: "-9999px" }}>
+          <label>
+            Company
+            <input name="company" tabIndex={-1} autoComplete="off" />
+          </label>
+        </div>
+        <button type="submit" className="btn btn-primary">
+          Send message
+        </button>
+      </form>
+    </div>
+  );
+}

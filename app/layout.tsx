@@ -24,7 +24,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <StoreProvider>
           <Nav account={account} />
           <main>{children}</main>
-          <Footer />
+          <Footer account={account} />
           <Toast />
         </StoreProvider>
       </body>

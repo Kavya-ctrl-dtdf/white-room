@@ -56,7 +56,7 @@ export async function sendMagicLink(formData: FormData) {
       emailRedirectTo: `${await siteUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
     },
   });
-  if (error) redirect(back({ error: "link" }, next));
+  if (error) redirect(back({ error: "send" }, next));
   redirect(back({ sent: "link" }, next));
 }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { Icon } from "@/components/Icons";
 import { EmptyState, ListingStatusPill, PageHeader, StatusPill } from "@/components/ui";
@@ -26,7 +27,11 @@ export default function AdminPage() {
 
   return (
     <div className="mx-auto max-w-page px-5 py-10">
-      <PageHeader title="Verification desk" />
+      <PageHeader title="Verification desk">
+        <Link href="/admin/messages" className="btn btn-quiet btn-sm">
+          Messages
+        </Link>
+      </PageHeader>
 
       <div className="flex flex-wrap gap-2 border-b border-line pb-4" role="tablist">
         {tabs.map((t) => (

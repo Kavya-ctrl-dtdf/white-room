@@ -3,8 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { safeNext, supabaseConfigured, type Role } from "./config";
 
 // Any signed-in user.
-const SIGNED_IN = ["/trips", "/book", "/host/new"];
-// Hosts and admins (checked after SIGNED_IN, so /host/new stays open to new owners).
+const SIGNED_IN = ["/trips"];
+// Hosts and admins. This includes /host/new.
 const HOST_ONLY = ["/host"];
 const ADMIN_ONLY = ["/admin"];
 
@@ -40,7 +40,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const needsHost = startsWithAny(path, HOST_ONLY) && !startsWithAny(path, SIGNED_IN);
+  const needsHost = startsWithAny(path, HOST_ONLY);
   const needsAdmin = startsWithAny(path, ADMIN_ONLY);
   const needsAuth = startsWithAny(path, SIGNED_IN) || needsHost || needsAdmin;
 

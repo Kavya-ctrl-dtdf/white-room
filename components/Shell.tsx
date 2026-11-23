@@ -68,6 +68,7 @@ export function Nav({ account }: { account: AccountState }) {
     { href: "/trips", label: "My stays", badge: tripCount, show: true },
     { href: "/host", label: "For owners", badge: 0, show: canHost },
     { href: "/admin", label: "Verification desk", badge: adminCount, show: canAdmin },
+    { href: "/contact", label: "Contact us", badge: 0, show: true },
   ].filter((l) => l.show);
 
   return (
@@ -132,8 +133,26 @@ export function Nav({ account }: { account: AccountState }) {
   );
 }
 
-export function Footer() {
+export function Footer({ account }: { account: AccountState }) {
   const { reset } = useStore();
+  const canHost = !account.configured || account.role === "host" || account.role === "admin";
+  const canAdmin = !account.configured || account.role === "admin";
+  const signedOut = account.configured && !account.signedIn;
+
+  const ownerLinks = [
+    canHost && { href: "/host", label: "Owner dashboard" },
+    { href: "/host/new", label: "List a property" },
+    canAdmin && { href: "/admin", label: "Verification desk" },
+    { href: "/contact", label: "Contact us" },
+  ].filter((l): l is { href: string; label: string } => !!l);
+
+  const accountLinks = [
+    signedOut
+      ? { href: "/login?next=/trips", label: "Sign in to see your stays" }
+      : { href: "/trips", label: "My stays" },
+    { href: "/", label: "How a stay works" },
+  ];
+
   return (
     <footer className="mt-24 border-t border-line bg-wall">
       <div className="mx-auto max-w-page px-5 py-12">
@@ -153,21 +172,8 @@ export function Footer() {
               { href: "/stays?for=treatment", label: "Treatment and recovery" },
             ]}
           />
-          <FooterCol
-            title="Owners"
-            links={[
-              { href: "/host", label: "Owner dashboard" },
-              { href: "/host/new", label: "List a property" },
-              { href: "/admin", label: "Verification desk" },
-            ]}
-          />
-          <FooterCol
-            title="Your account"
-            links={[
-              { href: "/trips", label: "My stays" },
-              { href: "/", label: "How a stay works" },
-            ]}
-          />
+          <FooterCol title="Owners" links={ownerLinks} />
+          <FooterCol title="Your account" links={accountLinks} />
         </div>
         <div className="mt-10 flex flex-col gap-4 border-t border-line pt-6 text-sm text-graphite md:flex-row md:items-center md:justify-between">
           <p>Demo build for validation. Listings, hosts and prices are sample data; payments run in test mode.</p>

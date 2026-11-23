@@ -252,7 +252,13 @@ function ListingDetail() {
               {q.short ? "You pay once for the 15 days." : "You pay the first month now; the rest monthly."}
             </p>
 
-            <div className="mt-5 flex gap-3 rounded-xl bg-sealsoft p-4 text-sm text-ink">
+            <p className="mt-4 text-center text-sm">
+              <Link href={`/contact?topic=stay&listing=${listing.id}`} className="font-semibold text-seal hover:underline">
+                Ask about this home
+              </Link>
+            </p>
+
+            <div className="mt-4 flex gap-3 rounded-xl bg-sealsoft p-4 text-sm text-ink">
               <Icon.Shield size={20} className="mt-0.5 shrink-0 text-seal" />
               <p>
                 <span className="font-semibold">Move-in protection.</span> If the home does not match this page, report it

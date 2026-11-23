@@ -5,16 +5,17 @@ import { sendMagicLink, signInWithGoogle, signInWithPassword, signUp } from "./a
 export const metadata = { title: "Sign in: White Room" };
 
 const ERRORS: Record<string, string> = {
-  credentials: "That email and password don't match. Check them, or sign in with an email link instead.",
-  signup: "We couldn't create the account. The email may already be registered; try signing in.",
-  link: "That sign-in link has expired or was already used. Request a new one below.",
-  google: "Google sign-in didn't complete. Try again, or use your email.",
+  credentials: "That email and password don't match. Check them, or get a sign-in link instead.",
+  signup: "We couldn't create the account. If the email is already registered, sign in instead.",
+  send: "We couldn't send the link. Check the email address and try again.",
+  link: "That sign-in link has expired or was already used. Request a new one.",
+  google: "Google sign-in didn't finish. Try again, or use your email.",
   setup: "Sign-in isn't switched on for this demo yet.",
 };
 
 const SENT: Record<string, string> = {
-  link: "Check your inbox. We sent a sign-in link that works for one hour.",
-  confirm: "Check your inbox to confirm your email, then you'll be signed in.",
+  link: "Check your inbox for a sign-in link. It works once, for one hour.",
+  confirm: "Check your inbox and confirm your email to finish creating your account.",
 };
 
 export default async function LoginPage({
@@ -32,10 +33,10 @@ export default async function LoginPage({
 
   return (
     <div className="mx-auto max-w-md px-5 py-12 md:py-16">
-      <h1 className="text-3xl md:text-4xl">{isSignup ? "Create your account" : "Sign in to White Room"}</h1>
+      <h1 className="text-3xl md:text-4xl">{isSignup ? "Create your account" : "Sign in"}</h1>
       <p className="mt-3 text-graphite">
         {isSignup
-          ? "Book stays for yourself or your family, and keep every invoice in one place."
+          ? "Book stays for yourself or your family and keep every invoice in one place."
           : "See your stays, invoices and move-in details."}
       </p>
 
@@ -110,7 +111,7 @@ export default async function LoginPage({
             <form action={sendMagicLink} className="space-y-3 border-t border-line pt-5">
               <input type="hidden" name="next" value={next} />
               <div>
-                <label htmlFor="link-email" className="label">No password? Get a sign-in link</label>
+                <label htmlFor="link-email" className="label">No password? We&apos;ll email you a sign-in link</label>
                 <input id="link-email" name="email" type="email" autoComplete="email" required className="field" />
               </div>
               <button type="submit" className="btn btn-quiet w-full">
