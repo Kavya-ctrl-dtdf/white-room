@@ -34,6 +34,27 @@ export async function sendMessage(formData: FormData) {
     p_auto_reply: autoReplyTemplate(topic),
   });
 
-  if (error || typeof ref !== "string") redirect("/contact?error=send");
-  redirect(`/contact?${new URLSearchParams({ sent: "1", ref, topic }).toString()}`);
+  if (!error && typeof ref === "string") {
+    redirect(`/contact?${new URLSearchParams({ sent: "1", ref, topic }).toString()}`);
+  }
+
+  // The database function isn't installed yet: fall back to a plain save, without a reference number.
+  const missingFunction = error?.code === "PGRST202" || /submit_help_query/.test(error?.message ?? "");
+  if (missingFunction) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    const { error: insertError } = await supabase.from("contact_messages").insert({
+      user_id: user?.id ?? null,
+      name,
+      email,
+      phone: phone || null,
+      topic,
+      listing_id: listing || null,
+      message,
+    });
+    if (!insertError) redirect(`/contact?${new URLSearchParams({ sent: "1", topic }).toString()}`);
+  }
+
+  redirect("/contact?error=send");
 }

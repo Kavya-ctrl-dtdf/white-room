@@ -27,7 +27,7 @@ export default async function ContactPage({
 
           <div className="mt-6 rounded-2xl border border-line bg-white p-5">
             <p className="text-sm font-semibold text-seal">Automated reply</p>
-            <p className="mt-2 leading-relaxed">{fillReference(autoReplyTemplate(topic), ref ?? "")}</p>
+            <p className="mt-2 leading-relaxed">{fillReference(autoReplyTemplate(topic), ref)}</p>
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">

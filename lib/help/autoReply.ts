@@ -22,8 +22,8 @@ export function autoReplyTemplate(topic: string): string {
   return [OPENING, MIDDLE[topic] ?? MIDDLE.other, CLOSING].join(" ");
 }
 
-export function fillReference(text: string, ref: string): string {
-  return text.replaceAll("{ref}", ref);
+export function fillReference(text: string, ref: string | null): string {
+  return ref ? text.replaceAll("{ref}", ref) : text.replaceAll(", reference {ref}", "");
 }
 
 /** Reference numbers look like HQ-3F9A2C. Anything else is ignored. */
