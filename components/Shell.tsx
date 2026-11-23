@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Icon } from "./Icons";
 import { useStore } from "@/lib/store";
+import type { AccountState } from "@/lib/supabase/config";
 
 export function Logo() {
   return (
@@ -28,7 +29,28 @@ function Badge({ n }: { n: number }) {
   );
 }
 
-export function Nav() {
+function AccountMenu({ account, onNavigate }: { account: AccountState; onNavigate?: () => void }) {
+  if (!account.configured) return null;
+  if (!account.signedIn) {
+    return (
+      <Link href="/login" onClick={onNavigate} className="btn btn-quiet btn-sm">
+        Sign in
+      </Link>
+    );
+  }
+  return (
+    <div className="flex items-center gap-3">
+      <span className="max-w-[160px] truncate text-sm font-medium text-graphite">{account.name}</span>
+      <form action="/auth/signout" method="post">
+        <button type="submit" className="btn btn-quiet btn-sm">
+          Sign out
+        </button>
+      </form>
+    </div>
+  );
+}
+
+export function Nav({ account }: { account: AccountState }) {
   const pathname = usePathname();
   const { bookings, listings } = useStore();
   const [open, setOpen] = useState(false);
@@ -37,12 +59,16 @@ export function Nav() {
   const adminCount =
     listings.filter((l) => l.status === "pending").length + bookings.filter((b) => b.status === "issue").length;
 
+  // With sign-in on, owner and admin links appear only for people who can open them.
+  const canHost = !account.configured || account.role === "host" || account.role === "admin";
+  const canAdmin = !account.configured || account.role === "admin";
+
   const links = [
-    { href: "/stays", label: "Find a stay", badge: 0 },
-    { href: "/trips", label: "My stays", badge: tripCount },
-    { href: "/host", label: "For owners", badge: 0 },
-    { href: "/admin", label: "Verification desk", badge: adminCount },
-  ];
+    { href: "/stays", label: "Find a stay", badge: 0, show: true },
+    { href: "/trips", label: "My stays", badge: tripCount, show: true },
+    { href: "/host", label: "For owners", badge: 0, show: canHost },
+    { href: "/admin", label: "Verification desk", badge: adminCount, show: canAdmin },
+  ].filter((l) => l.show);
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-white/85 backdrop-blur">
@@ -67,6 +93,9 @@ export function Nav() {
             );
           })}
         </nav>
+        <div className="hidden md:block">
+          <AccountMenu account={account} />
+        </div>
         <button
           type="button"
           className="flex h-10 w-10 items-center justify-center rounded-full border border-line md:hidden"
@@ -92,6 +121,11 @@ export function Nav() {
               <Badge n={l.badge} />
             </Link>
           ))}
+          {account.configured && (
+            <div className="px-3 py-3">
+              <AccountMenu account={account} onNavigate={() => setOpen(false)} />
+            </div>
+          )}
         </nav>
       )}
     </header>

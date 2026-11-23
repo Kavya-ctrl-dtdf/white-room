@@ -3,6 +3,7 @@ import "@fontsource-variable/bricolage-grotesque/opsz.css";
 import "@fontsource-variable/instrument-sans";
 import "./globals.css";
 import { StoreProvider } from "@/lib/store";
+import { getAccount } from "@/lib/supabase/account";
 import { Footer, Nav, Toast } from "@/components/Shell";
 
 export const metadata: Metadata = {
@@ -14,12 +15,14 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const account = await getAccount();
+
   return (
     <html lang="en-IN">
       <body>
         <StoreProvider>
-          <Nav />
+          <Nav account={account} />
           <main>{children}</main>
           <Footer />
           <Toast />

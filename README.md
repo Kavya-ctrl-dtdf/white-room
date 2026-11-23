@@ -33,6 +33,19 @@ Hybrid and remote workers: search "Me, for work" with "15 days", then open wr-20
 
 Bonus: in the Verification queue, start verification on wr-701, click "Mark all as passed (demo)", and publish it. It now appears in search. The footer has a Reset demo data button.
 
+## Sign-in with Supabase (optional)
+
+Accounts are off by default, so the site stays an open demo and deploys with no environment variables. To switch them on:
+
+1. Create a Supabase project and run `supabase/schema.sql` in the SQL Editor.
+2. Copy `.env.example` to `.env.local` and fill in the project URL and publishable key. Add the same variables in Vercel under Settings, then Environment Variables.
+3. In Supabase, under Authentication, then URL Configuration, set the site URL and add `/auth/callback` on localhost and on your Vercel address as redirect URLs. Enable the Google provider if you want Google sign-in.
+4. Sign in once, then make yourself admin in the SQL Editor (the last line of the schema file shows how).
+
+When on: `/trips`, `/book` and `/host/new` need any signed-in user, `/host` needs a host or admin, and `/admin` needs an admin. The sign-in page returns people to the page they came from.
+
+Bookings and listings still live in each browser. They are not yet tied to a user account.
+
 ## Roadmap
 
 - **Supabase:** real accounts, listings, bookings and owner payouts in Postgres, with row-level security.
