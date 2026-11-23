@@ -27,6 +27,8 @@ export default async function LoginPage({
   const { error, sent, mode } = params;
   const isSignup = mode === "signup";
   const nq = encodeURIComponent(next);
+  // Google needs its own setup in Supabase, so the button waits for this switch.
+  const googleOn = process.env.NEXT_PUBLIC_GOOGLE_AUTH === "true";
 
   return (
     <div className="mx-auto max-w-md px-5 py-12 md:py-16">
@@ -59,16 +61,20 @@ export default async function LoginPage({
         </div>
       ) : (
         <div className="panel mt-6 space-y-6 p-5 md:p-6">
-          <form action={signInWithGoogle}>
-            <input type="hidden" name="next" value={next} />
-            <button type="submit" className="btn btn-quiet w-full">
-              Continue with Google
-            </button>
-          </form>
+          {googleOn && (
+            <>
+              <form action={signInWithGoogle}>
+                <input type="hidden" name="next" value={next} />
+                <button type="submit" className="btn btn-quiet w-full">
+                  Continue with Google
+                </button>
+              </form>
 
-          <p className="flex items-center gap-3 text-sm text-graphite before:h-px before:flex-1 before:bg-line after:h-px after:flex-1 after:bg-line">
-            or use your email
-          </p>
+              <p className="flex items-center gap-3 text-sm text-graphite before:h-px before:flex-1 before:bg-line after:h-px after:flex-1 after:bg-line">
+                or use your email
+              </p>
+            </>
+          )}
 
           <form action={isSignup ? signUp : signInWithPassword} className="space-y-4">
             <input type="hidden" name="next" value={next} />
